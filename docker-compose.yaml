@@ -1,0 +1,92 @@
+services:
+  timescaledb:
+    build:
+      context: .
+      dockerfile: docker/timescaledb/Dockerfile
+    container_name: timescaledb
+    environment:
+      POSTGRES_USER: mobilityuser
+      POSTGRES_PASSWORD: mobilitypass
+      POSTGRES_DB: mobility
+      POSTGRES_ENABLE_AVAILABILITY: "true"
+      POSTGRES_CREATE_MATVIEWS: "true"
+    volumes:
+      - ./docker/data/timescaledb/init:/docker-entrypoint-initdb.d/
+      - ./docker/data/timescaledb/data:/data
+      - ./docker/data/timescaledb/scripts:/scripts
+      - ./docker/data/timescaledb/schemas:/schemas
+      - ./docker/data/timescaledb/config:/etc/postgresql
+      - timescaledb:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - mobility-network
+    shm_size: '4GB'
+    deploy:
+      resources:
+        limits:
+          memory: 12g
+  # osrm:
+  #   build:
+  #     context: .
+  #     dockerfile: docker/osrm/Dockerfile
+  #   container_name: osrm
+  #   environment:
+  #     # baden-wuerttemberg-latest.osm.pbf -> baden-wuerttemberg-latest
+  #     - OSRM_NAME=baden-wuerttemberg-latest
+  #   volumes:
+  #     - ./docker/data/osrm/:/data:rw
+  #   ports:
+  #     - "5000:5000"
+  #   networks:
+  #     - mobility-network
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 2g
+  # keplergl:
+  #   build:
+  #     context: .
+  #     dockerfile: docker/keplergl/Dockerfile
+  #   container_name: keplergl
+  #   environment:
+  #     - MAPBOX_ACCESS_TOKEN=<your_mapbox_token>
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - ./docker/data/keplergl:/data:rw
+  #   networks:
+  #     - mobility-network
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 2g
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana:/var/lib/grafana
+    networks:
+      - mobility-network
+    environment:
+      - GF_SECURITY_ADMIN_USER=mobilityuser
+      - GF_SECURITY_ADMIN_PASSWORD=mobilitypass
+      - TZ=Etc/UTC
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+
+volumes:
+  grafana:
+    driver: local
+  timescaledb:
+    driver: local
+
+networks:
+  mobility-network:
+    driver: bridge
+    external: false
