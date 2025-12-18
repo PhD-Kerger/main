@@ -1,0 +1,4 @@
+docker/data/timescaledb/data/
+docker/data/osrm/data/
+*.parquet
+*.tar.gz

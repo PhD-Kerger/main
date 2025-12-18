@@ -161,3 +161,21 @@ GROUP BY
     location
 ORDER BY
     month;
+
+-- Demand pattern per hour of day and weekday for each station (not including wrong returns in Nextbike networks)
+CREATE OR REPLACE VIEW hourly_weekday_pattern_demand AS
+SELECT
+    EXTRACT(ISODOW FROM hour)::int AS weekday,
+    EXTRACT(HOUR FROM hour)::int AS hour_of_day,
+    station_id,
+    SUM(total_lends) AS total_lends,
+    SUM(total_returns) AS total_returns
+FROM
+    hourly_demand_agg
+WHERE
+    station_id IS NOT NULL
+    AND station_name NOT ILIKE '%BIKE%'
+GROUP BY
+    weekday,
+    hour_of_day,
+    station_id
