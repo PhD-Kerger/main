@@ -1,15 +1,16 @@
 #!/bin/bash
 set -euo pipefail
 
-TABLES=(geo_information station_names availability demand trips weather osm gtfs holidays vacations wfs demographics bike_counting_stations)
+TABLES=(geo_information station_names demand trips weather osm osm_landuse holidays vacations wfs demographics bike_counting_stations availability gtfs)
 CHUNKED_TABLES=(availability demand trips gtfs)
 OPERATOR_TABLES=(availability demand trips)
 
 # Parse command line arguments for operators
 SELECTED_OPERATORS=""
 if [ $# -gt 0 ]; then
-    SELECTED_OPERATORS="$@"
-    echo "Selected operators: $SELECTED_OPERATORS"
+    # Convert command-line arguments to newline-delimited format
+    SELECTED_OPERATORS=$(printf "%s\n" "$@")
+    echo "Selected operators: $(echo "$SELECTED_OPERATORS" | tr '\n' ', ' | sed 's/,$//')"
 fi
 
 echo "Starting data import into PostgreSQL. Will set threads to $(nproc) and memory limit to $(free -g | awk '/^Mem:/{print int($2*0.8)}')GB for DuckDB."
@@ -23,6 +24,11 @@ ALTER TABLE station_names DISABLE TRIGGER ALL;
 echo "Foreign key constraints disabled."
 
 for table in "${TABLES[@]}"; do
+    # Check if data directory exists
+    if [ ! -d "/data/${table}" ]; then
+        echo "Data directory for $table not found, skipping..."
+        continue
+    fi
     # Check if table has chunked data
     if [[ " ${CHUNKED_TABLES[@]} " =~ " ${table} " ]]; then
         # Special handling for availability based on environment variable
@@ -40,7 +46,7 @@ for table in "${TABLES[@]}"; do
                 operators="$SELECTED_OPERATORS"
             else
                 # Get all available operators from directory structure
-                operators=$(ls -d /data/${table}/*/ 2>/dev/null | xargs -n 1 basename 2>/dev/null || echo "")
+                operators=$(find /data/${table}/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null || echo "")
                 if [ -z "$operators" ]; then
                     echo "  No operator directories found for $table, skipping..."
                     continue
@@ -48,11 +54,11 @@ for table in "${TABLES[@]}"; do
             fi
             
             # Import each operator
-            for operator in $operators; do
+            while IFS= read -r operator || [ -n "$operator" ]; do
                 echo "  Processing operator: $operator"
                 
                 # Count chunks for this operator
-                chunk_count=$(ls -1 /data/${table}/${operator}/*.parquet 2>/dev/null | wc -l)
+                chunk_count=$(ls -1 "/data/${table}/${operator}"/*.parquet 2>/dev/null | wc -l)
                 
                 if [ $chunk_count -eq 0 ]; then
                     echo "    No chunk files found for operator $operator, skipping..."
@@ -62,7 +68,7 @@ for table in "${TABLES[@]}"; do
                 echo "    Found $chunk_count chunks for operator $operator"
 
                 # Import all chunks for this operator
-                for chunk_file in /data/${table}/${operator}/*.parquet; do
+                for chunk_file in "/data/${table}/${operator}"/*.parquet; do
                     chunk_name=$(basename "$chunk_file")
                     echo "    Importing $chunk_name..."
                     
@@ -75,7 +81,7 @@ for table in "${TABLES[@]}"; do
                         INSERT INTO pg.$table FROM '$chunk_file';
                     "
                 done
-            done
+            done <<< "$operators"
         else
             # Non-operator chunked tables (like gtfs)
             # Count chunks

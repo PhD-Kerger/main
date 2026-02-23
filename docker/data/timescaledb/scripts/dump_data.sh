@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-TABLES=(geo_information station_names availability demand trips weather osm holidays vacations gtfs wfs demographics bike_counting_stations)
+TABLES=(geo_information station_names availability demand trips weather osm osm_landuse holidays vacations gtfs wfs demographics bike_counting_stations)
 CHUNK_TABLES=(availability demand trips gtfs)
 OPERATOR_TABLES=(availability demand trips)
 
@@ -41,6 +41,9 @@ get_order_clause() {
             ;;
         osm)
             echo "ORDER BY entity_name"
+            ;;
+        osm_landuse)
+            echo "ORDER BY id, city"
             ;;
         station_names)
             echo "ORDER BY id"
@@ -165,7 +168,7 @@ for table in "${TABLES[@]}"; do
         fi
         
         # Loop through operators (or single iteration for non-operator tables)
-        for operator in $operators; do
+        while IFS= read -r operator || [ -n "$operator" ]; do
             # Set operator filter based on table and whether it has operators
             if [[ " ${OPERATOR_TABLES[@]} " =~ " ${table} " ]]; then
                 echo "  Processing operator: $operator"
@@ -227,7 +230,7 @@ for table in "${TABLES[@]}"; do
                     ) TO '/data/backup/${table}${operator_suffix}/${year_month}.parquet' (FORMAT PARQUET, COMPRESSION $COMPRESSION);
                 "
             done
-        done
+        done <<< "$operators"
     else
         echo "Dumping table $table to Parquet file (compression: $COMPRESSION)..."
         
