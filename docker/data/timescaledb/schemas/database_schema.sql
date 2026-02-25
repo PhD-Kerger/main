@@ -13,6 +13,7 @@ CREATE TABLE
         city_name TEXT,
         federal_state_name TEXT,
         postal_code INTEGER,
+        elevation INTEGER,
         PRIMARY KEY (location_id)
     );
 
@@ -214,6 +215,18 @@ CREATE TABLE
 CREATE INDEX ON wfs USING GIST (area);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_wfs_unique ON wfs (city, name);
+
+CREATE TABLE
+    osm_landuse (
+        id INTEGER PRIMARY KEY,
+        city TEXT,
+        landuse TEXT,
+        area geometry (MULTIPOLYGON, 4326)
+    );
+
+CREATE INDEX ON osm_landuse USING GIST (area);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_osm_landuse_unique ON osm_landuse (id, city, landuse);
 
 -- Table: demographics
 CREATE TABLE
