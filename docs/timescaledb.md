@@ -5,6 +5,10 @@
   - [🧱 Architecture Overview](#-architecture-overview)
   - [📂 Data Model](#-data-model)
   - [📊 Entity-Relationship Diagram](#-entity-relationship-diagram)
+  - [🛠 Administration \& Operations](#-administration--operations)
+    - [⚙️ Database Configuration](#️-database-configuration)
+    - [💾 Backup and Restore](#-backup-and-restore)
+    - [🏎 Performance Tuning](#-performance-tuning)
   - [🧱 Materialized Views](#-materialized-views)
   - [🔁 Continuous Aggregates](#-continuous-aggregates)
     - [Availability](#availability)
@@ -222,7 +226,37 @@ erDiagram
 
 ---
 
+## 🛠 Administration & Operations
+
+The TimescaleDB container is based on **Postgres 17**.
+
+### ⚙️ Database Configuration
+- **Port**: `5432`
+- **Database Name**: `mobility` (created automatically)
+- **Environment Variables**:
+  - `POSTGRES_USER`: Database username.
+  - `POSTGRES_PASSWORD`: Database password.
+  - `POSTGRES_DB`: Name of the database.
+  - `POSTGRES_ENABLE_AVAILABILITY`: If `true`, enables import of availability data.
+  - `POSTGRES_CREATE_MATVIEWS`: If `true`, automatically creates continuous aggregates at startup.
+
+### 💾 Backup and Restore
+For logical backups, refer to the [official documentation](https://docs.timescale.com/self-hosted/latest/backup-and-restore/logical-backup/).
+
+- **Restoring Data**: Import the schema first, then the data. Data files (e.g., Parquet) should be placed in `docker/data/timescaledb/data`. Use the `import_data.sh` script inside the container.
+- **Dumping Data**: Use the `dump_database.sh` script. Backups are stored in `docker/data/timescaledb/backup`.
+- **Truncating Data**: Use `truncate_database.sh` to clear data while preserving the schema.
+
+### 🏎 Performance Tuning
+Parameters can be tuned using `timescaledb-tune` inside the container:
+```bash
+timescaledb-tune --memory="12GB" --quiet --yes --dry-run --conf-path=/usr/share/postgresql/postgresql.conf.sample
+```
+
+---
+
 ## 🧱 Materialized Views
+
 
 **Materialized views** in PostgreSQL are query results stored on disk, allowing for fast read performance on complex or expensive queries. Unlike standard views, which compute results on the fly, materialized views persist data and must be manually refreshed when underlying data changes. They're ideal when real-time freshness isn't required but speed is.
 

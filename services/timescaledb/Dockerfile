@@ -11,28 +11,29 @@ RUN wget --no-check-certificate -qO - https://packagecloud.io/timescale/timescal
 # Fixes Certificate verification failed in some networks
 RUN echo 'Acquire::https::Verify-Peer "false";' > /etc/apt/apt.conf.d/99disable-verification && \
     apt-get update
-    
+
 RUN apt install timescaledb-2-postgresql-17 postgresql-client-17 -y && \
     rm -rf /var/lib/apt/lists/*
 
-# Install DuckDB
+# Install DuckDB version 1.4.2. This is needed as the extensions we are using require exactly this version
 RUN wget https://github.com/duckdb/duckdb/releases/download/v1.4.2/duckdb_cli-linux-amd64.zip && \
     unzip duckdb_cli-linux-amd64.zip && \
     mv duckdb /usr/local/bin/ && \
     rm duckdb_cli-linux-amd64.zip && \
     chmod +x /usr/local/bin/duckdb
 
-COPY docker/data/timescaledb/config/postgresql.conf /
+COPY data/config/postgresql.conf /
 
 # Copy DuckDB Extensions
-COPY docker/timescaledb/postgres_scanner.duckdb_extension.tar.gz /
-COPY docker/timescaledb/spatial.duckdb_extension.tar.gz /
+COPY data/duckdb_extensions/postgres_scanner.duckdb_extension.tar.gz /
+COPY data/duckdb_extensions/spatial.duckdb_extension.tar.gz /
+
 # Extract DuckDB Extensions
 RUN mkdir -p /var/lib/postgresql/duckdb_extensions && \
     tar -xzf /spatial.duckdb_extension.tar.gz -C /var/lib/postgresql/duckdb_extensions && \
     tar -xzf /postgres_scanner.duckdb_extension.tar.gz -C /var/lib/postgresql/duckdb_extensions && \
     rm /spatial.duckdb_extension.tar.gz /postgres_scanner.duckdb_extension.tar.gz
-    
+
 # Install DuckDB Extensions globally
 RUN duckdb -c "INSTALL '/var/lib/postgresql/duckdb_extensions/spatial.duckdb_extension';" && \
     duckdb -c "INSTALL '/var/lib/postgresql/duckdb_extensions/postgres_scanner.duckdb_extension';"

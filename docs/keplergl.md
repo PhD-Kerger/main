@@ -1,10 +1,11 @@
 # kepler.gl
 
-- [🌍 Key Features](#-key-features)
-- [🧱 Architecture Overview](#-architecture-overview)
-- [🔧 Core Components](#-core-components)
-- [📁 Supported Data Formats](#-supported-data-formats)
-- [🎨 Visualization Layers](#-visualization-layers)
+- [kepler.gl](#keplergl)
+  - [🌍 Key Features](#-key-features)
+  - [🧱 Architecture Overview](#-architecture-overview)
+  - [🔧 Core Components](#-core-components)
+  - [📁 Supported Data Formats](#-supported-data-formats)
+  - [🎨 Visualization Layers](#-visualization-layers)
 
 **kepler.gl** is a powerful open-source geospatial analysis tool for large-scale datasets. Developed by Uber's Visualization team, it provides an intuitive UI for visualizing geospatial data directly in the browser, without writing any code.
 
@@ -36,14 +37,31 @@ It uses GPU acceleration to handle datasets with **millions of rows** in the bro
 
 ---
 
-## 🔧 Core Components
+## � Setup & Usage
 
-| Component      | Description                                                                 |
-|----------------|-----------------------------------------------------------------------------|
-| `KeplerGl`     | Main React component, encapsulates map rendering and UI logic               |
-| `deck.gl`      | Underlying WebGL engine used to draw and animate visual layers              |
-| `mapbox-gl`    | Background map engine, supports basemap styling and zooming                 |
-| `Redux store`  | Maintains application state: datasets, filters, layers, map style, etc.     |
+### 🚀 Launching
+Kepler.gl is available on port **8080**.
+
+### 🔑 Mapbox Integration
+A valid (free) **Mapbox API key** is required for the base maps. Set this in `docker-compose.yml` under the `MAPBOX_ACCESS_TOKEN` environment variable.
+
+### 📊 Data Limitations
+- **Browser Memory**: There is a ~500MB limit for data loaded directly in the browser. 
+- **Python Integration**: If your dataset exceeds this limit, use the `keplergl` Python package to analyze data directly:
+  ```bash
+  pip install keplergl
+  ```
+
+---
+
+## �🔧 Core Components
+
+| Component           | Description                                                             |
+| ------------------- | ----------------------------------------------------------------------- |
+| `KeplerGl`          | Main React component, encapsulates map rendering and UI logic           |
+| `deck.gl`           | Underlying WebGL engine used to draw and animate visual layers          |
+| `mapbox-gl`         | Background map engine, supports basemap styling and zooming             |
+| `Redux store`       | Maintains application state: datasets, filters, layers, map style, etc. |
 | `kepler.gl schemas` | JSON schemas that allow importing/exporting complete map configurations |
 
 ---

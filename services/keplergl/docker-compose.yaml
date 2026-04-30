@@ -1,0 +1,23 @@
+services:
+  keplergl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: keplergl
+    environment:
+      - MAPBOX_ACCESS_TOKEN=<your_mapbox_token>
+    ports:
+      - "5003:8080"
+    volumes:
+      - ./docker/data/keplergl:/data:rw
+    networks:
+      - mobility-network
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+
+networks:
+  mobility-network:
+    driver: bridge
+    external: true

@@ -1,0 +1,16 @@
+services:
+  opentopodata:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "5002:5000"
+    volumes:
+      - ./data:/app/data:ro
+    stdin_open: true
+    networks:
+      - mobility-network
+
+networks:
+  mobility-network:
+    external: true

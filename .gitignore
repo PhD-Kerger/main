@@ -1,4 +1,21 @@
-docker/data/timescaledb/data/
-docker/data/osrm/data/
-*.parquet
-*.tar.gz
+# OSRM data from OpenStreetMap
+services/osrm/data/osm/*
+!services/osrm/data/osm/.gitkeep
+
+# Weather data from Copernicus ERA5
+services/openmeteo/data/copernicus_era5/*
+!services/openmeteo/data/copernicus_era5/.gitkeep
+
+# kepler.gl data
+services/keplergl/data/*
+!services/keplergl/data/.gitkeep
+
+# opentopodata
+services/opentopodata/docker/
+services/opentopodata/opentopodata/
+services/opentopodata/requirements.txt
+services/opentopodata/data/etopo1/*
+!services/opentopodata/data/etopo1/.gitkeep
+!services/opentopodata/setup.sh
+!services/opentopodata/config.yaml
+!services/opentopodata/docker-compose.yaml

@@ -1,0 +1,16 @@
+services:
+  open-meteo:
+    volumes:
+      - ./data/copernicus_era5:/app/data
+    ports:
+      - 5005:8080
+    image: ghcr.io/open-meteo/open-meteo
+    container_name: open-meteo
+    restart: unless-stopped
+    networks:
+      - mobility-network
+
+networks:
+  mobility-network:
+    driver: bridge
+    external: true

@@ -1,0 +1,34 @@
+services:
+  timescaledb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: timescaledb
+    environment:
+      POSTGRES_USER: mobilityuser
+      POSTGRES_PASSWORD: mobilitypass
+      POSTGRES_DB: mobility
+      POSTGRES_ENABLE_AVAILABILITY: "true"
+      POSTGRES_CREATE_MATVIEWS: "true"
+    volumes:
+      - ./data/init:/docker-entrypoint-initdb.d/
+      - ./data/scripts:/scripts
+      - ./data/schemas:/schemas
+      - timescaledb:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - mobility-network
+    shm_size: '4GB'
+    deploy:
+      resources:
+        limits:
+          memory: 12g
+volumes:
+  timescaledb:
+    driver: local
+
+networks:
+  mobility-network:
+    driver: bridge
+    external: true

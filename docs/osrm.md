@@ -1,10 +1,13 @@
 # Open Source Routing Machine (OSRM)
 
-- [🔍 Key Features](#-key-features)
-- [⚙️ Architecture Overview](#-architecture-overview)
-- [🧩 Core Components](#-core-components)
-- [🌐 HTTP API Endpoints](#-http-api-endpoints)
-- [🛠 Routing Profiles](#-routing-profiles)
+- [Open Source Routing Machine (OSRM)](#open-source-routing-machine-osrm)
+  - [🔍 Key Features](#-key-features)
+  - [⚙️ Architecture Overview](#️-architecture-overview)
+    - [1. **Preprocessing**](#1-preprocessing)
+    - [2. **Routing**](#2-routing)
+  - [🧩 Core Components](#-core-components)
+  - [🌐 HTTP API Endpoints](#-http-api-endpoints)
+  - [🛠 Routing Profiles](#-routing-profiles)
 
 The **Open Source Routing Machine (OSRM)** is a lightning-fast routing engine for road networks, built on top of data from [OpenStreetMap](https://www.openstreetmap.org/). Designed for performance, OSRM delivers real-time route computation, distance matrices, and turn-by-turn directions at scale.
 
@@ -12,7 +15,32 @@ OSRM is ideal for applications where fast, customizable, and reliable routing is
 
 ---
 
-## 🔍 Key Features
+## � Setup & Integration
+
+### ⚙️ Launching
+The OSRM service is available on port **5000**.
+
+### 📂 Data Provisioning
+- OSM data is stored in `docker/data/osrm/data`.
+- You can download region-specific data (e.g., from [Geofabrik](https://download.geofabrik.de/)).
+- The container automatically handles extraction, partitioning, and customization at startup. (Default: Baden-Württemberg).
+
+### 🐍 Python Integration
+You can interact with the OSRM API using the `requests` library:
+```python
+import requests
+
+# Example: Bike route from (8.68, 49.41) to (8.69, 49.42)
+response = requests.get(
+    "http://localhost:5000/route/v1/bike/8.6814,49.4144;8.6865,49.4194?overview=false"
+)
+data = response.json()
+print(data)
+```
+
+---
+
+## �🔍 Key Features
 
 - 🚗 **Ultra-fast routing** based on preprocessed graph data
 - 🧭 **Turn-by-turn navigation** with street names and maneuver types
@@ -50,12 +78,12 @@ Once preprocessed, the `osrm-routed` server is launched to handle HTTP requests.
 
 ## 🧩 Core Components
 
-| Component       | Description                                                                 |
-|----------------|-----------------------------------------------------------------------------|
-| `osrm-extract` | Extracts routing-relevant data from an OSM file using a Lua profile         |
-| `osrm-partition` | Divides the graph for MLD routing, optimizing it for performance         |
+| Component        | Description                                                                  |
+| ---------------- | ---------------------------------------------------------------------------- |
+| `osrm-extract`   | Extracts routing-relevant data from an OSM file using a Lua profile          |
+| `osrm-partition` | Divides the graph for MLD routing, optimizing it for performance             |
 | `osrm-customize` | Applies routing profile weights and edge properties to the partitioned graph |
-| `osrm-routed`   | Runs a web server to serve the OSRM API over HTTP                          |
+| `osrm-routed`    | Runs a web server to serve the OSRM API over HTTP                            |
 
 ---
 
@@ -63,14 +91,14 @@ Once preprocessed, the `osrm-routed` server is launched to handle HTTP requests.
 
 OSRM exposes a well-documented HTTP API with various services:
 
-| Endpoint              | Description                                                           |
-|-----------------------|-----------------------------------------------------------------------|
-| `/route/v1/{profile}/{coordinates}`   | Calculates a route between coordinates                                 |
-| `/nearest/v1/{profile}/{coordinates}` | Finds the closest routable point to input coordinates                  |
-| `/table/v1/{profile}/{coordinates}`   | Computes duration/distance matrices for multiple coordinates           |
-| `/match/v1/{profile}/{coordinates}`   | Snaps noisy GPS traces to road network (map matching)                  |
-| `/trip/v1/{profile}/{coordinates}`    | Solves optimal round-trip for the given locations                      |
-| `/tile/v1/{profile}/{x}/{y}/{z}.mvt`  | Returns vector tiles (useful for visualizing routing graphs)          |
+| Endpoint                              | Description                                                  |
+| ------------------------------------- | ------------------------------------------------------------ |
+| `/route/v1/{profile}/{coordinates}`   | Calculates a route between coordinates                       |
+| `/nearest/v1/{profile}/{coordinates}` | Finds the closest routable point to input coordinates        |
+| `/table/v1/{profile}/{coordinates}`   | Computes duration/distance matrices for multiple coordinates |
+| `/match/v1/{profile}/{coordinates}`   | Snaps noisy GPS traces to road network (map matching)        |
+| `/trip/v1/{profile}/{coordinates}`    | Solves optimal round-trip for the given locations            |
+| `/tile/v1/{profile}/{x}/{y}/{z}.mvt`  | Returns vector tiles (useful for visualizing routing graphs) |
 
 Each endpoint supports **query parameters** to customize behavior, including `annotations`, `overview`, `geometries`, `steps`, and `hints`.
 

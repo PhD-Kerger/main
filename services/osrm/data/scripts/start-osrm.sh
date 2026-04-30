@@ -1,9 +1,9 @@
 #!/bin/sh
 
 # Paths to input and output files based on the environment variable
-OSM_FILE=/data/data/${OSRM_NAME}.osm.pbf
-OSRM_FILE="/data/data/${OSRM_NAME}.osrm"
-PROFILE="/opt/car.lua"
+OSM_FILE=/data/${OSRM_NAME}.osm.pbf
+OSRM_FILE="/data/${OSRM_NAME}.osrm"
+PROFILE="/opt/foot.lua"
 
 # Extract, partition, and customize the OSM data
 if [ ! -f "${OSRM_FILE}" ]; then
