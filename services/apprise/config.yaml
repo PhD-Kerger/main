@@ -1,0 +1,5 @@
+urls:
+  - slack://
+daily_summary_time: '12:00'
+error_alerts_enabled: false
+daily_summary_enabled: false

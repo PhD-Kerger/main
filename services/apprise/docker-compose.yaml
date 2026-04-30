@@ -1,0 +1,16 @@
+services:
+  apprise:
+    image: ghcr.io/caronc/apprise:latest
+    container_name: apprise
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    restart: unless-stopped
+    ports:
+      - "5008:8000"
+    networks:
+      - mobility-network
+
+networks:
+  mobility-network:
+    driver: bridge
+    external: true
