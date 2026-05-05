@@ -1,0 +1,21 @@
+services:
+  alloy:
+    image: grafana/alloy:latest
+    ports:
+      - "5007:8080"
+    networks:
+      - mobility-network
+    volumes:
+      - /root/services/alloy/config-swarm.alloy:/etc/alloy/config.alloy
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - run
+      - /etc/alloy/config.alloy
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+
+networks:
+  mobility-network:
+    external: true

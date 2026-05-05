@@ -8,17 +8,15 @@ services:
       # Name of the OSM file without the .osm.pbf extension, which is used 
       # in the start-osrm.sh script to determine the input and output file paths.
       # E.g. baden-wuerttemberg-latest.osm.pbf -> baden-wuerttemberg-latest
-      - OSRM_NAME=karlsruhe-regbez-260429
+      - OSRM_NAME=europe-latest
+      # OSRM_PROFILE can be set to one of the following values: car, bike or foot.
+      - OSRM_PROFILE=foot
     volumes:
       - ./data/osm/:/data:rw
     ports:
       - "5001:5000"
     networks:
       - mobility-network
-    deploy:
-      resources:
-        limits:
-          memory: 2g
  
 networks:
   mobility-network:
