@@ -3,9 +3,6 @@ version: "3.8"
 services:
   opentopodata:
     image: opentopodata:latest
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
     ports:
       - target: 5000
         published: 5002
