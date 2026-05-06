@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  opentopodata:
+    image: opentopodata:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - target: 5000
+        published: 5002
+        protocol: tcp
+        mode: host
+    volumes:
+      - ./data:/app/data:ro
+    configs:
+      - source: opentopodata_config
+        target: /app/config.yaml
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+    networks:
+      - mobility-network
+
+configs:
+  opentopodata_config:
+    file: ./config.yaml
+
+networks:
+  mobility-network:
+    external: true
